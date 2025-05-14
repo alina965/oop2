@@ -22,7 +22,7 @@ public class Factory {
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("commands.properties")) {
             if (input == null) {
                 logger.severe("Не удалось найти файл commands.properties");
-                throw new RuntimeException("Файл commands.properties не найден");
+                System.exit(1);
             }
 
             properties.load(input);
@@ -37,7 +37,6 @@ public class Factory {
                 }
                 catch (Exception e) {
                     logger.warning("Не удалось создать команду: " + commandName);
-                    throw new RuntimeException("Ошибка при создании команды: " + commandName, e);
                 }
             }
 
@@ -45,7 +44,7 @@ public class Factory {
             }
         catch (IOException e) {
             logger.severe("Произошла ошибка при загрузке commands.properties");
-            throw new RuntimeException("Не получилось загрузить файл commands.properties :(");
+            System.exit(1);
         }
     }
 
@@ -53,7 +52,6 @@ public class Factory {
         Command command = commands.get(name);
         if (command == null) {
             logger.warning("Команда " + name + " неизвестна.");
-            throw new IllegalArgumentException("Неизвестная команда: " + name);
         }
 
         logger.info("Была вызвана команда " + name);

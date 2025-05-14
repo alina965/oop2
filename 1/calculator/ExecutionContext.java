@@ -17,7 +17,7 @@ public class ExecutionContext {
     public double pop() {
         if (stack.isEmpty()) {
             logger.severe("Попытка вызвать команду POP, хотя стек пуст.");
-            throw new IllegalStateException("Стек пуст :(");
+            System.exit(1);
         }
         return stack.pop();
     }
@@ -25,7 +25,7 @@ public class ExecutionContext {
     public double peek() {
         if (stack.isEmpty()) {
             logger.severe("Попытка вызвать команду PEEK, хотя стек пуст.");
-            throw new IllegalStateException("Стек пуст :(");
+            System.exit(1);
         }
         return stack.peek();
     }
@@ -37,7 +37,7 @@ public class ExecutionContext {
     public double getVariable(String name) {
         if (!variables.containsKey(name)) {
             logger.severe("Попытка использовать неизвестную переменную: " + name);
-            throw new IllegalArgumentException("Неизвестная переменная - " + name);
+            System.exit(1);
         }
         return variables.get(name);
     }
