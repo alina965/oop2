@@ -24,7 +24,7 @@ public class Calculator {
             }
             catch (IOException e) {
                 logger.severe("Произошла ошибка при чтении из файла: " + e.getMessage());
-                throw new RuntimeException(e);
+                System.exit(1);
             }
         }
 
@@ -36,7 +36,7 @@ public class Calculator {
             }
             catch (IOException e) {
                 logger.severe("Произошла ошибка ввода: " + e.getMessage());
-                throw new RuntimeException(e);
+                System.exit(1);
             }
         }
 

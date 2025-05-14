@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class DefineCommand implements Command {
     @Override
-    public void execute(ExecutionContext context, String[] args) {
+    public void execute(ExecutionContext context, String[] args) throws IllegalArgumentException {
         if (args.length != 3) throw new IllegalArgumentException("Для DEFINE требуется ровно 2 аргумента");
 
         if (!Pattern.matches("-?\\d+(\\.\\d+)?", args[2])) {

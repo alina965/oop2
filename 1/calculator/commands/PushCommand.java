@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class PushCommand implements Command {
     @Override
-    public void execute(ExecutionContext context, String[] args) {
+    public void execute(ExecutionContext context, String[] args)  throws IllegalArgumentException {
         if (args.length != 2) throw new IllegalArgumentException("Нет аргумента для PUSH :(");
 
         String argument = args[1];
