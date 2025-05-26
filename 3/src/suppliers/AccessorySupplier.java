@@ -6,14 +6,13 @@ import storage.Storage;
 
 public class AccessorySupplier extends Thread {
     private final Storage<Accessory> accessoryStorage;
-    private final IDGenerator idGenerator;
+    private final IDGenerator idGenerator = new IDGenerator();
     private final int frequency;
     private final int id;
     private volatile boolean isRunning = true;
 
-    public AccessorySupplier(int frequency, Storage<Accessory> storage, IDGenerator generator, int id) {
+    public AccessorySupplier(int frequency, Storage<Accessory> storage, int id) {
         accessoryStorage = storage;
-        idGenerator = generator;
         this.frequency = frequency;
         this.id = id;
     }
@@ -27,7 +26,7 @@ public class AccessorySupplier extends Thread {
     public void run() {
         while (isRunning) {
             try {
-                accessoryStorage.putComponent(new Accessory(idGenerator.giveID(), id));
+                accessoryStorage.putComponent(new Accessory(idGenerator.getID(), id));
                 sleep(frequency);
             }
             catch (InterruptedException e) {

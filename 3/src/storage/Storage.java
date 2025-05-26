@@ -2,10 +2,12 @@ package storage;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.logging.Logger;
 
 public class Storage<T> {
     private final int capacity;
     private final Queue<T> components = new LinkedList<>();
+    private static final Logger logger = Logger.getLogger(Storage.class.getName());
 
     public Storage(int capacity) throws IllegalArgumentException{
         if (capacity <= 0) {
@@ -23,12 +25,12 @@ public class Storage<T> {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException("Поток был прерван во время ожидания добавления");
             }
-            System.out.printf("[%s] Ожидание: склад %s полон (%d/%d)\n", Thread.currentThread().getName(), component.getClass().getSimpleName(), components.size(), capacity);
+            logger.info(Thread.currentThread().getName() + " Ожидание: склад " + component.getClass().getSimpleName() + " полон: " + components.size() + "/" + capacity);
             wait();
         }
 
         components.add(component);
-        System.out.printf("[%s] Добавлен %s (теперь %d/%d)\n", Thread.currentThread().getName(), component.getClass().getSimpleName(), components.size(), capacity);
+        logger.info(Thread.currentThread().getName() + " Добавлен " + component.getClass().getSimpleName() + " теперь: " + components.size() + "/" + capacity);
         notifyAll();
     }
 
@@ -37,12 +39,12 @@ public class Storage<T> {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException("Поток был прерван во время ожидания извлечения");
             }
-            System.out.printf("[%s] Ожидание: склад пуст\n", Thread.currentThread().getName());
+            logger.info(Thread.currentThread().getName() + " Ожидание: склад пуст");
             wait();
         }
 
         T component = components.poll();
-        System.out.printf("[%s] Взят %s (осталось %d/%d)\n", Thread.currentThread().getName(), component.getClass().getSimpleName(), components.size(), capacity);
+        logger.info(Thread.currentThread().getName() + " Взят " + component.getClass().getSimpleName() + " теперь: " + components.size() + "/" + capacity);
         notifyAll();
         return component;
     }

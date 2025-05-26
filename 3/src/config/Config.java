@@ -13,5 +13,5 @@ public class Config {
         }
     }
 
-    public int getInt(String key) { return Integer.parseInt(props.getProperty(key)); }
+    public int getProperty(String key) { return Integer.parseInt(props.getProperty(key)); }
 }

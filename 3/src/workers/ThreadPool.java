@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Logger;
 
 public class ThreadPool {
     private final List<WorkerThread> workers = new ArrayList<>();
     private final BlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<>();
     private volatile boolean isRunning = true;
+    private static final Logger logger = Logger.getLogger(ThreadPool.class.getName());
 
     public ThreadPool(int numThreads) {
         for (int i = 0; i < numThreads; i++) {
@@ -46,7 +48,7 @@ public class ThreadPool {
                 try {
                     Runnable task = taskQueue.take();
                     task.run();
-                    System.out.println("[WorkerPool] Выполнил задачу\n");
+                    logger.info("[WorkerPool] Выполнил задачу\n");
                 }
                 catch (InterruptedException e) {
                     if (!isRunning) {

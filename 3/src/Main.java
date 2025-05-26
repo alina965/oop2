@@ -1,15 +1,17 @@
 import components.*;
 import config.Config;
 import workers.*;
-import other.IDGenerator;
 import storage.*;
 import suppliers.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Main {
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+
     public static void main(String[] args) {
         List<AccessorySupplier> accessorySuppliers = new ArrayList<>();
         List<Dealer> dealers = new ArrayList<>();
@@ -21,69 +23,60 @@ public class Main {
         try {
             Config config = new Config("config.properties");
 
-            Storage<Car> carStorage = new Storage<>(config.getInt("StorageAutoSize"));
-            Storage<Body> bodyStorage = new Storage<>(config.getInt("StorageBodySize"));
-            Storage<Engine> engineStorage = new Storage<>(config.getInt("StorageEngineSize"));
-            Storage<Accessory> accessoryStorage = new Storage<>(config.getInt("StorageAccessorySize"));
+            Storage<Car> carStorage = new Storage<>(config.getProperty("StorageAutoSize"));
+            Storage<Body> bodyStorage = new Storage<>(config.getProperty("StorageBodySize"));
+            Storage<Engine> engineStorage = new Storage<>(config.getProperty("StorageEngineSize"));
+            Storage<Accessory> accessoryStorage = new Storage<>(config.getProperty("StorageAccessorySize"));
 
-            IDGenerator bodyID = new IDGenerator();
-            IDGenerator engineID = new IDGenerator();
-            IDGenerator accessoryID = new IDGenerator();
-            IDGenerator carID = new IDGenerator();
-
-            int accessorySuppliersCount = config.getInt("AccessorySuppliers");
+            int accessorySuppliersCount = config.getProperty("AccessorySuppliers");
             for (int i = 0; i < accessorySuppliersCount; i++) {
-                AccessorySupplier supplier = new AccessorySupplier(config.getInt("AccessorySupplierFrequency"), accessoryStorage, accessoryID, i);
+                AccessorySupplier supplier = new AccessorySupplier(config.getProperty("AccessorySupplierFrequency"), accessoryStorage, i);
                 supplier.start();
                 accessorySuppliers.add(supplier);
             }
 
-            bodySupplier = new BodySupplier(config.getInt("BodySupplierFrequency"), bodyStorage, bodyID);
-            engineSupplier = new EngineSupplier(config.getInt("EngineSupplierFrequency"), engineStorage, engineID);
+            bodySupplier = new BodySupplier(config.getProperty("BodySupplierFrequency"), bodyStorage);
+            engineSupplier = new EngineSupplier(config.getProperty("EngineSupplierFrequency"), engineStorage);
             bodySupplier.start();
             engineSupplier.start();
 
-            threadPool = new ThreadPool(config.getInt("Workers"));
+            threadPool = new ThreadPool(config.getProperty("Workers"));
 
-            controller = new Controller(carStorage, threadPool, bodyStorage, engineStorage, accessoryStorage, carID);
+            controller = new Controller(carStorage, threadPool, bodyStorage, engineStorage, accessoryStorage);
             controller.start();
 
-            int dealerCount = config.getInt("Dealers");
-            int dealerFrequency = config.getInt("DealerFrequency");
+            int dealerCount = config.getProperty("Dealers");
+            int dealerFrequency = config.getProperty("DealerFrequency");
             for (int i = 0; i < dealerCount; i++) {
                 Dealer dealer = new Dealer(dealerFrequency, carStorage);
                 dealer.start();
                 dealers.add(dealer);
             }
 
-            BodySupplier finalBodySupplier = bodySupplier;
-            EngineSupplier finalEngineSupplier = engineSupplier;
-            Controller finalController = controller;
-            ThreadPool finalThreadPool = threadPool;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                System.out.println("\nЗавершение работы...");
+                logger.info("Завершение работы...");
 
                 for (AccessorySupplier supplier : accessorySuppliers) {
                     supplier.stopWorking();
                 }
 
-                finalBodySupplier.stopWorking();
-                finalEngineSupplier.stopWorking();
+                bodySupplier.stopWorking();
+                engineSupplier.stopWorking();
 
                 for (Dealer dealer : dealers) {
                     dealer.stopWorking();
                 }
 
-                finalController.stopWorking();
+                controller.stopWorking();
 
-                finalThreadPool.shutdown();
+                threadPool.shutdown();
 
-                System.out.println("Все потоки остановлены");
+                logger.info("Все потоки остановлены");
             }));
 
         }
         catch (IOException e) {
-            System.err.println("Не удалось загрузить конфигурацию: " + e.getMessage());
+            logger.severe("Не удалось загрузить конфигурацию: " + e.getMessage());
             System.exit(1);
         }
     }

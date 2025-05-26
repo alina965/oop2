@@ -7,23 +7,25 @@ import components.Engine;
 import other.IDGenerator;
 import storage.Storage;
 
+import java.util.logging.Logger;
+
 public class Controller extends Thread {
     private final Storage<Car> carStorage;
     private final ThreadPool threadPool;
     private final Storage<Body> bodyStorage;
     private final Storage<Engine> engineStorage;
     private final Storage<Accessory> accessoryStorage;
-    private final IDGenerator carID;
+    private final IDGenerator carIDGenerator = new IDGenerator();
     private volatile boolean isRunning = true;
     private static final int DELAY = 200;
+    private static final Logger logger = Logger.getLogger(Controller.class.getName());
 
-    public Controller(Storage<Car> carStorage, ThreadPool threadPool, Storage<Body> bodyStorage, Storage<Engine> engineStorage, Storage<Accessory> accessoryStorage, IDGenerator carID) {
+    public Controller(Storage<Car> carStorage, ThreadPool threadPool, Storage<Body> bodyStorage, Storage<Engine> engineStorage, Storage<Accessory> accessoryStorage) {
         this.carStorage = carStorage;
         this.threadPool = threadPool;
         this.bodyStorage = bodyStorage;
         this.engineStorage = engineStorage;
         this.accessoryStorage = accessoryStorage;
-        this.carID = carID;
     }
 
     public void stopWorking() {
@@ -47,7 +49,7 @@ public class Controller extends Thread {
                 }
 
                 threadPool.submit(this::assembleCar);
-                System.out.println("[Controller] Отправил задачу на сборку");
+                logger.info("[Controller] Отправил задачу на сборку");
 
                 Thread.sleep(DELAY);
             }
@@ -63,8 +65,8 @@ public class Controller extends Thread {
             Engine engine = engineStorage.takeComponent();
             Accessory accessory = accessoryStorage.takeComponent();
 
-            Car car = new Car(engine, body, accessory, carID.giveID());
-            System.out.println("Worker: собрана машина " + car);
+            Car car = new Car(engine, body, accessory, carIDGenerator.getID());
+            logger.info("Worker: собрана машина " + car);
             carStorage.putComponent(car);
         }
         catch (InterruptedException e) {

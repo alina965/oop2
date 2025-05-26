@@ -6,13 +6,12 @@ import storage.Storage;
 
 public class EngineSupplier extends Thread {
     private final Storage<Engine> engineStorage;
-    private final IDGenerator idGenerator;
+    private final IDGenerator idGenerator = new IDGenerator();
     private final int frequency;
     private volatile boolean isRunning = true;
 
-    public EngineSupplier(int frequency, Storage<Engine> storage, IDGenerator generator) {
+    public EngineSupplier(int frequency, Storage<Engine> storage) {
         engineStorage = storage;
-        idGenerator = generator;
         this.frequency = frequency;
     }
 
@@ -25,7 +24,7 @@ public class EngineSupplier extends Thread {
     public void run() {
         while (isRunning) {
             try {
-                engineStorage.putComponent(new Engine(idGenerator.giveID()));
+                engineStorage.putComponent(new Engine(idGenerator.getID()));
                 sleep(frequency);
             }
             catch (InterruptedException e) {
